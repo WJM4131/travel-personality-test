@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>你的旅行综艺隐藏角色</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f1e8;color:#34302e;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+main{max-width:520px;margin:auto;padding:32px 23px;min-height:100vh}
+.tag{font-size:12px;letter-spacing:3px;color:#9a7563}
+h1{font-size:32px;line-height:1.4;margin:22px 0}
+p{line-height:1.9;color:#756b65}
+.card{background:#fffdf8;border:1px solid #e9ddd0;border-radius:22px;padding:25px;margin-top:25px;box-shadow:0 8px 30px #7b62410d}
+button{width:100%;padding:17px;margin-top:13px;border-radius:13px;border:1px solid #e7d9cc;background:#fff;color:#45372f;text-align:left;font-size:15px;line-height:1.5}
+button:active{background:#e8d5c5}
+.primary{background:#493b36;color:white;text-align:center;border:0;font-weight:600}
+.progress{height:5px;background:#e6dcd2;border-radius:10px;margin:25px 0}
+.bar{height:100%;background:#ad806a;border-radius:10px;transition:width .3s}
+.small{font-size:13px;color:#a18e80}
+.result{font-size:28px;color:#8d604a}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const app=document.getElementById("app");
+const questions=[
+["旅行第一天，大家突然发现订错酒店，你会？",["立刻寻找替代酒店","先安慰大家的情绪","觉得这是意外的冒险","分析是谁出了问题"]],
+["一群人讨论明天去哪，你通常？",["主动制定路线","听听大家想法","提出一个特别的地点","默默观察再决定"]],
+["旅行预算突然不够了，你会？",["重新分配预算","主动减少自己的开销","寻找免费又好玩的活动","检查之前的消费"]],
+["有人在旅途中情绪低落，你会？",["帮他解决问题","陪他聊天","带他出去散心","给他独处空间"]],
+["节目组让你完成神秘任务，你会？",["先研究规则","寻找队友合作","直接大胆尝试","观察线索再行动"]],
+["旅程结束，你最希望别人记住你什么？",["靠谱又有担当","温暖又善良","有趣又充满惊喜","聪明又有想法"]]
+];
+const names=["旅行掌舵者","团队治愈师","自由冒险家","冷静观察家","隐藏协调官","浪漫体验派"];
+const desc=[
+"你是团队里让人安心的存在。面对混乱，你能迅速找到方向。你的魅力不是永远正确，而是愿意承担责任。旅行中，你需要学会偶尔放下计划，把惊喜交给别人。",
+"你拥有很强的共情能力，总能察觉别人没说出口的情绪。大家可能记不清你安排了什么，却会记得有你在身边的温暖。你的成长课题，是别忘了照顾自己的感受。",
+"你天生喜欢未知。别人眼中的突发状况，在你看来可能是故事的开始。你为团队带来活力与新鲜感。偶尔提前准备，会让你的冒险更加精彩。",
+"你不急着成为人群中心，却常常看见别人忽略的细节。你的判断力和独立思考很有价值。试着多表达想法，你的观点可能正是团队需要的。",
+"你擅长把不同性格的人连接起来。你不是最抢眼的那一个，却能让团队运转得更顺畅。你的隐藏天赋是平衡与沟通，但不必总是自己退让。",
+"你珍惜旅行中的氛围和细节。一场日落、一顿晚餐，都能成为你心中的高光时刻。你能让普通旅程拥有仪式感，也要记得享受当下，而不是追求完美。"
+];
+let index=-1,answers=[];
+function render(){
+if(index===-1){
+app.innerHTML='<div class="tag">TRAVEL PERSONALITY · VOL.01</div><h1>如果你参加旅行综艺<br>你会是哪种隐藏角色？</h1><p>六个旅行场景，解锁你在团队里的真实定位。你以为自己是配角，也许你才是整场旅行的灵魂人物。</p><div class="card"><p>✦ 约2分钟完成<br>✦ 6种原创旅行人格<br>✦ 自动生成专属解析</p><button class="primary" onclick="start()">开启我的旅行剧本 →</button></div>';
+return;
+}
+if(index<questions.length){
+let q=questions[index];
+app.innerHTML='<div class="tag">YOUR TRAVEL STORY</div><div class="progress"><div class="bar" style="width:'+index/questions.length*100+'%"></div></div><div class="small">CHAPTER '+(index+1)+' / '+questions.length+'</div><h1>'+q[0]+'</h1><div class="card">'+q[1].map((x,i)=>'<button onclick="choose('+i+')">'+String.fromCharCode(65+i)+'. '+x+'</button>').join('')+'</div>'+(index?'<button onclick="back()">← 上一题</button>':'');
+return;
+}
+let scores=[0,0,0,0,0,0];
+answers.forEach((a,i)=>{
+scores[a]++;
+if(i===1||i===4)scores[(a+4)%6]++;
+if(i===2||i===5)scores[(a+5)%6]++;
+});
+let best=scores.indexOf(Math.max(...scores));
+let match=names[(best+1)%6];
+app.innerHTML='<div class="tag">YOUR FINAL CHARACTER</div><div class="card"><div class="small">你的旅行综艺隐藏角色是</div><h1 class="result">'+names[best]+'</h1><p>'+desc[best]+'</p><hr style="border:0;border-top:1px solid #eee1d5;margin:25px 0"><div class="small">你的最佳旅行搭档</div><h2>'+match+'</h2><p>你们拥有不同的优势，彼此补充，更容易创造难忘的旅行故事。</p><button class="primary" onclick="restart()">重新测试 ↻</button><button onclick="share()">分享给朋友 →</button></div><p class="small">原创娱乐性格测试，不属于专业心理测评。</p>';
+}
+function start(){index=0;answers=[];render()}
+function choose(a){answers[index]=a;index++;render();scrollTo(0,0)}
+function back(){index--;render()}
+function restart(){index=-1;answers=[];render()}
+function share(){if(navigator.share){navigator.share({title:"你的旅行综艺隐藏角色",url:location.href}).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(()=>alert("链接已复制"))}else{alert("请复制浏览器地址分享")}}
+render();
+</script>
+</body>
+</html>
