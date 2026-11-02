@@ -70,5 +70,60 @@ function restart(){index=-1;answers=[];render()}
 function share(){if(navigator.share){navigator.share({title:"你的旅行综艺隐藏角色",url:location.href}).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(()=>alert("链接已复制"))}else{alert("请复制浏览器地址分享")}}
 render();
 </script>
+  <script>
+const VERIFY_API = "https://travel-code-api.rovnertreiber722.workers.dev/verify";
+
+async function verifyAccess() {
+  if (sessionStorage.getItem("travel_access") === "yes") return;
+
+  const originalContent = document.getElementById("app").innerHTML;
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h1>请输入兑换码</h1>
+      <p>购买后输入收到的兑换码，即可开启旅行性格测试。</p>
+      <input id="accessCode" placeholder="输入兑换码"
+        style="width:100%;padding:15px;border:1px solid #ddd;border-radius:12px;font-size:16px">
+      <button class="primary" id="verifyButton" onclick="submitAccess()">验证并开始 →</button>
+      <p id="accessMessage"></p>
+    </div>`;
+}
+
+async function submitAccess() {
+  const code = document.getElementById("accessCode").value.trim();
+  const message = document.getElementById("accessMessage");
+  const button = document.getElementById("verifyButton");
+  if (!code) { message.textContent = "请先输入兑换码"; return; }
+
+  button.disabled = true;
+  message.textContent = "正在验证……";
+  try {
+    let deviceId = localStorage.getItem("travel_device_id");
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("travel_device_id", deviceId);
+    }
+
+    const response = await fetch(VERIFY_API, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({code, deviceId})
+    });
+    const result = await response.json();
+
+    if (result.ok) {
+      sessionStorage.setItem("travel_access", "yes");
+      location.reload();
+    } else {
+      message.textContent = result.error || "兑换码验证失败";
+    }
+  } catch (error) {
+    message.textContent = "网络连接失败，请稍后重试";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+verifyAccess();
+</script>
 </body>
 </html>
